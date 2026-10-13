@@ -1,0 +1,16 @@
+# Dependencias instaladas (muy pesadas para subir a GitHub)
+node_modules/
+
+# Variables de entorno y contraseñas de MongoDB (NUNCA subirlas a GitHub)
+.env
+
+# Archivos de evidencias subidos localmente por los usuarios
+uploads/
+
+# Logs del sistema y del servidor
+*.log
+npm-debug.log*
+
+# Archivos temporales de sistemas operativos
+.DS_Store
+Thumbs.db
