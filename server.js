@@ -15,7 +15,7 @@ connectDB();
 
 // 2. Middlewares globales
 app.use(cors({
-  origin: '*', // Permite peticiones desde GitHub Pages, localhost o tu PWA móvil
+  origin: 'https://erikafloreschapuli-a11y.github.io', // Permite peticiones desde GitHub Pages, localhost o tu PWA móvil
   methods: ['GET', 'POST', 'PUT', 'DELETE'],
   allowedHeaders: ['Content-Type', 'Authorization']
 }));
