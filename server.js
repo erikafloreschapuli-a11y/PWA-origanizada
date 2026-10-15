@@ -2,6 +2,7 @@ require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
 const path = require('path');
+const mongoose = require('mongoose');
 const connectDB = require('./config/db');
 // Importar rutas de indicadores
 const indicadoresRoutes = require('./routes/indicadores');
@@ -10,12 +11,13 @@ const indicadoresRoutes = require('./routes/indicadores');
 const app = express();
 const PORT = process.env.PORT || 4000;
 
-// 1. Conectar a MongoDB
-connectDB();
-
-// 2. Middlewares globales
+// Middlewares globales
 app.use(cors({
-  origin: 'https://erikafloreschapuli-a11y.github.io', // Permite peticiones desde GitHub Pages, localhost o tu PWA móvil
+  origin: [
+    'https://erikafloreschapuli-a11y.github.io',
+    'http://localhost:5500',
+    'http://127.0.0.1:5500'
+  ],
   methods: ['GET', 'POST', 'PUT', 'DELETE'],
   allowedHeaders: ['Content-Type', 'Authorization']
 }));
@@ -28,10 +30,12 @@ app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 // 3. Ruta de prueba y comprobación de salud (Health Check)
 app.get('/api/health', (req, res) => {
-  res.json({
-    status: 'online',
+  const databaseConnected = mongoose.connection.readyState === 1;
+  res.status(databaseConnected ? 200 : 503).json({
+    status: databaseConnected ? 'online' : 'offline',
     sistema: 'SIDII Gestión Institucional API',
     version: '1.0.0',
+    database: databaseConnected ? 'connected' : 'disconnected',
     timestamp: new Date().toISOString()
   });
 });
@@ -48,9 +52,15 @@ app.use((req, res) => {
 
 
 
-// 6. Iniciar servidor
-app.listen(PORT, () => {
-  console.log(`🚀 Servidor SIDII activo en: http://localhost:${PORT}`);
-  console.log(`📡 Comprobación de salud: http://localhost:${PORT}/api/health`);
-});
-
+// No aceptar peticiones hasta confirmar la conexión con MongoDB.
+connectDB()
+  .then(() => {
+    app.listen(PORT, () => {
+      console.log(`🚀 Servidor SIDII activo en: http://localhost:${PORT}`);
+      console.log(`📡 Comprobación de salud: http://localhost:${PORT}/api/health`);
+    });
+  })
+  .catch((error) => {
+    console.error(`❌ No se pudo iniciar el servidor: ${error.message}`);
+    process.exit(1);
+  });

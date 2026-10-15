@@ -4,8 +4,15 @@ const mongoose = require('mongoose');
  * Conexión centralizada a MongoDB Atlas o Local
  */
 const connectDB = async () => {
+  const mongoUri = process.env.MONGO_URI ||
+    (process.env.NODE_ENV === 'production' ? null : 'mongodb://127.0.0.1:27017/sidii_db');
+
+  if (!mongoUri) {
+    throw new Error('MONGO_URI no está configurada en el entorno de producción');
+  }
+
   try {
-    const conn = await mongoose.connect(process.env.MONGO_URI || 'mongodb://127.0.0.1:27017/sidii_db', {
+    const conn = await mongoose.connect(mongoUri, {
       serverSelectionTimeoutMS: 5000,
     });
 
@@ -13,11 +20,7 @@ const connectDB = async () => {
     console.log(`📁 Base de datos activa: ${conn.connection.name}`);
   } catch (error) {
     console.error(`❌ Error al conectar a MongoDB: ${error.message}`);
-    
-    // Si estás en producción cerramos el proceso; en local dejamos que siga para pruebas
-    if (process.env.NODE_ENV === 'production') {
-      process.exit(1);
-    }
+    throw error;
   }
 };
 
