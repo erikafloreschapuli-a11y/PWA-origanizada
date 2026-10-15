@@ -1,6 +1,15 @@
 const mongoose = require('mongoose');
 
 const IndicadorMIRSchema = new mongoose.Schema({
+    clientMutationId: {
+        type: String,
+        unique: true,
+        sparse: true
+    },
+    programaPresupuestario: String,
+    unidadResponsable: String,
+    metodoCalculo: String,
+    observacionesTecnicas: String,
     nivelMIR: {
         type: String,
         required: [true, 'El nivel MIR es obligatorio'],
